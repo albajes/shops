@@ -3,24 +3,24 @@ from django.db import models
 
 class City(models.Model):
     id = models.BigAutoField(auto_created=True, primary_key=True)
-    name = models.CharField(max_length=30, blank=False)
+    name = models.CharField(max_length=30, blank=False, unique=True, null=False)
 
 
 class Street(models.Model):
     id = models.BigAutoField(auto_created=True, primary_key=True)
-    name = models.CharField(max_length=30, blank=False)
-    city_id = models.ForeignKey(City, to_field='id', on_delete=models.RESTRICT)
+    name = models.CharField(max_length=30, blank=False, null=False)
+    city_id = models.ForeignKey(City, on_delete=models.RESTRICT, blank=False, null=False)
 
 
 class Address(models.Model):
     id = models.BigAutoField(auto_created=True, primary_key=True)
-    house = models.CharField(max_length=10, blank=False)
-    street_id = models.ForeignKey(Street, to_field='id', on_delete=models.RESTRICT)
+    house = models.CharField(max_length=10, blank=False, null=False)
+    street_id = models.ForeignKey(Street, on_delete=models.RESTRICT, blank=False, null=False)
 
 
 class Shops(models.Model):
     id = models.BigAutoField(auto_created=True, primary_key=True)
-    name = models.CharField(max_length=10, blank=False)
-    address_id = models.ForeignKey(Address, to_field='id', on_delete=models.RESTRICT)
-    open_time = models.IntegerField(blank=False)
-    close_time = models.IntegerField(blank=False)
+    name = models.CharField(max_length=10, blank=False, null=False)
+    address_id = models.ForeignKey(Address, on_delete=models.RESTRICT)
+    open_time = models.IntegerField(blank=False, null=False)
+    close_time = models.IntegerField(blank=False, null=False)

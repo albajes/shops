@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from podrygomy.tutorials.models import *
+from .models import *
 
 
 class CitySerializer(serializers.ModelSerializer):
