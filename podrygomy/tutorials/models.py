@@ -12,15 +12,16 @@ class Street(models.Model):
     city_id = models.ForeignKey(City, on_delete=models.RESTRICT, blank=False, null=False)
 
 
-class Address(models.Model):
-    id = models.BigAutoField(auto_created=True, primary_key=True)
-    house = models.CharField(max_length=10, blank=False, null=False)
-    street_id = models.ForeignKey(Street, on_delete=models.RESTRICT, blank=False, null=False)
+# class Address(models.Model):
+#     id = models.BigAutoField(auto_created=True, primary_key=True)
+#     house = models.CharField(max_length=10, blank=False, null=False)
+#     street_id = models.ForeignKey(Street, on_delete=models.RESTRICT, blank=False, null=False)
 
 
 class Shops(models.Model):
     id = models.BigAutoField(auto_created=True, primary_key=True)
     name = models.CharField(max_length=10, blank=False, null=False)
-    address_id = models.ForeignKey(Address, on_delete=models.RESTRICT)
+    street_id = models.ForeignKey(Street, on_delete=models.RESTRICT, blank=False, null=False, default='0')
+    house = models.CharField(max_length=10, default='0')
     open_time = models.IntegerField(blank=False, null=False)
     close_time = models.IntegerField(blank=False, null=False)
