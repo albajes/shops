@@ -14,19 +14,19 @@ import datetime
 @api_view(['GET', 'POST'])
 def cities(request):
     if request.method == 'GET':
-        var_cities = City.objects.all()
-        if not var_cities:
-            return Response('NET GORODOV', status=status.HTTP_404_NOT_FOUND)
+        all_cities = City.objects.all()
+        if not all_cities:
+            return Response('Cities not created', status=status.HTTP_404_NOT_FOUND)
 
-        var_cities_serializer = CitySerializer(var_cities, many=True)
-        return JsonResponse(var_cities_serializer.data, safe=False)
+        all_cities_serializer = CitySerializer(all_cities, many=True)
+        return JsonResponse(all_cities_serializer.data, safe=False)
 
     elif request.method == 'POST':
-        var_cities_serializer = CitySerializer(data=request.data)
-        if var_cities_serializer.is_valid():
-            var_cities_serializer.save()
-            return Response(var_cities_serializer.data, status=status.HTTP_201_CREATED)
-        return Response(var_cities_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        all_cities_serializer = CitySerializer(data=request.data)
+        if all_cities_serializer.is_valid():
+            all_cities_serializer.save()
+            return Response(all_cities_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(all_cities_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET', 'POST'])
@@ -34,7 +34,7 @@ def streets_by_city_id(request):
     if request.method == 'GET':
         var_city_id = request.query_params.get('city_id')
         if var_city_id is None or not var_city_id.isdigit():
-            return Response('kakoi gorod to?', status=status.HTTP_400_BAD_REQUEST)
+            return Response('City id expected', status=status.HTTP_400_BAD_REQUEST)
         streets = Street.objects.filter(city_id=var_city_id)
         streets_serializer = StreetSerializer(streets, many=True)
         return JsonResponse(streets_serializer.data, safe=False)
@@ -47,14 +47,23 @@ def streets_by_city_id(request):
         return Response(street_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST', 'DELETE'])
 def create_shop(request):
+    try:
+        shop = Shops.objects.all()
+    except Shops.DoesNotExist:
+        return Response(shop.errors, status=status.HTTP_400_BAD_REQUEST)
+
     if request.method == 'POST':
         shop_serializer = ShopsSerializer(data=request.data)
         if shop_serializer.is_valid():
             shop_serializer.save()
             return Response(shop_serializer.data, status=status.HTTP_201_CREATED)
         return Response(shop_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        shop.delete()
+        return Response(status=204)
 
     elif request.method == 'GET':
         var_street_id = request.query_params.get('street')
