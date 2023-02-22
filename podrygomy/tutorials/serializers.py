@@ -20,10 +20,21 @@ class StreetSerializer(serializers.ModelSerializer):
                   'name',
                   'city',)
 
+    def create(self, validated_data):
+        city_data = validated_data.pop('city')
+        city = City.objects.filter(name=city_data.get("name"))
+        if not city:
+            city = City.objects.create(**city_data)
+            print(city)
+
+        city = get_object_or_404(City, name=city_data.get('name'))
+        street = Street.objects.create(**validated_data, city=city)
+        return street
+
 
 class ShopsSerializer(serializers.ModelSerializer):
     street = serializers.CharField(source='street.name')
-    city = serializers.CharField(source='city.name')
+    city = serializers.CharField(write_only=True, source='city.name')
 
     class Meta:
         model = Shops
@@ -51,25 +62,17 @@ class ShopsSerializer(serializers.ModelSerializer):
         print(city)
 
         if not city:
-            City.objects.get_or_create(**city_data)
-            Street.objects.get_or_create(**street_data)
-            city = get_object_or_404(City, name=city_data.get('city'))
-            street = get_object_or_404(Street, name=street_data.get('street'))
+            city = City.objects.create(**city_data)
             print(city)
+            street = Street.objects.get_or_create(**street_data, city=city)
             print(street)
 
+        if not street:
+            city = get_object_or_404(City, name=city_data.get('name'))
+            street = Street.objects.create(**street_data, city=city)
+            print(street)
 
-        # if not street:
-        #     print('This street is not in the database')
-
-
-
-
-
-
-        # street = Street.objects.get_or_create(**street_data)
-        # print(street)
-        # street = get_object_or_404(Street, name=street_data.get('name'))
-        # print(street)
-        # shop = Shops.objects.create(street_id=street, **validated_data)
-        # return shop
+        city = get_object_or_404(City, name=city_data.get('name'))
+        street = get_object_or_404(Street, name=street_data.get('name'), city=city.id)
+        shop = Shops.objects.create(**validated_data, street=street)
+        return shop
