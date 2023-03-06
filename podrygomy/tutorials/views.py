@@ -12,6 +12,7 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+
 @api_view(['GET', 'POST'])
 def cities(request):
     _logger.debug('Rest request %s /api/city received', request.method)
@@ -61,7 +62,7 @@ def streets_by_city_id(request):
         return Response(street_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'POST', 'DELETE'])
+@api_view(['GET', 'POST'])
 def create_shop(request):
     _logger.debug("Rest request %s /api/shop received", request.method)
     if request.method == 'POST':
