@@ -71,8 +71,8 @@ class ShopsSerializer(serializers.ModelSerializer):
         city = get_object_or_404(City, name=city_data.get('name'))
 
         if not street:
-            street = Street.objects.create(**street_data, city=city)
-            print(street)
+            _logger.debug('Street by name %s not found in data base. Start creating', street_data.get("name"))
+            Street.objects.create(**street_data, city=city)
 
         street = get_object_or_404(Street, name=street_data.get('name'), city=city.id)
         shop = Shops.objects.create(**validated_data, street=street)
