@@ -1,10 +1,9 @@
 from django.db import IntegrityError
 from django.db.models import Q
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.response import Response
 
 from .serializers import *
-from rest_framework.decorators import api_view
 from django.http.response import JsonResponse
 import datetime
 import logging
@@ -13,10 +12,9 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-@api_view(['GET', 'POST'])
-def cities(request):
-    _logger.debug('Rest request %s /api/city received', request.method)
-    if request.method == 'GET':
+class CityViewSet(viewsets.ViewSet):
+    def list(self, request):
+        _logger.debug('Rest request %s /api/city received', request.method)
         all_cities = City.objects.all()
         if not all_cities:
             _logger.warning('No cities were found in the database. 404 response is returned')
@@ -24,9 +22,9 @@ def cities(request):
 
         _logger.debug('Found %s cities', len(all_cities))
         all_cities_serializer = CitySerializer(all_cities, many=True)
-        return JsonResponse(all_cities_serializer.data, safe=False)
+        return Response(all_cities_serializer.data)
 
-    elif request.method == 'POST':
+    def create(self, request):
         all_cities_serializer = CitySerializer(data=request.data)
         if all_cities_serializer.is_valid():
             _logger.debug('The received data is valid. The city start saving')
@@ -36,10 +34,9 @@ def cities(request):
         return Response(all_cities_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'POST'])
-def streets_by_city_id(request):
-    _logger.debug('Rest request %s /api/street received', request.method)
-    if request.method == 'GET':
+class StreetViewSet(viewsets.ViewSet):
+    def list(self, request):
+        _logger.debug('Rest request %s /api/street received', request.method)
         var_city_id = request.query_params.get('city_id')
         _logger.debug('Parameter city_id %s received', var_city_id)
         if var_city_id is None or not var_city_id.isdigit():
@@ -49,7 +46,7 @@ def streets_by_city_id(request):
         streets_serializer = StreetSerializer(streets, many=True)
         return JsonResponse(streets_serializer.data, safe=False)
 
-    elif request.method == 'POST':
+    def create(self, request):
         street_serializer = StreetSerializer(data=request.data)
         if street_serializer.is_valid():
             _logger.debug("The received data is valid. The street start saving")
@@ -62,10 +59,9 @@ def streets_by_city_id(request):
         return Response(street_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'POST'])
-def create_shop(request):
-    _logger.debug("Rest request %s /api/shop received", request.method)
-    if request.method == 'POST':
+class ShopViewSet(viewsets.ViewSet):
+    def create(self, request):
+        _logger.debug("Rest request %s /api/shop received", request.method)
         shop_serializer = ShopsSerializer(data=request.data)
         if shop_serializer.is_valid():
             _logger.debug("The received data is valid. The shop start saving")
@@ -73,12 +69,12 @@ def create_shop(request):
                 shop = shop_serializer.save()
             except IntegrityError:
                 return Response('Such data already exists', status=status.HTTP_400_BAD_REQUEST)
-            slovar = dict.fromkeys({'id'}, shop.id)
+            slovar = {'id': shop.id}
             return Response(slovar, status=status.HTTP_201_CREATED)
         _logger.warning("The received data is not valid. 400 response is returned")
         return Response(shop_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    elif request.method == 'GET':
+    def list(self, request):
         _logger.info("Get shop request with parameters:")
         var_street_id = request.query_params.get('street')
         var_city_id = request.query_params.get('city')

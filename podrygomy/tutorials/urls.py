@@ -1,8 +1,8 @@
-from django.urls import path
 from .views import *
+from rest_framework.routers import DefaultRouter
 
-urlpatterns = [
-    path('city', cities),
-    path('street', streets_by_city_id),
-    path('shop', create_shop)
-]
+router = DefaultRouter()
+router.register('city', CityViewSet, basename='city')
+router.register('street', StreetViewSet, basename='street')
+router.register('shop', ShopViewSet, basename='shop')
+urlpatterns = router.urls
